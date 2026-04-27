@@ -420,11 +420,20 @@
 <script>
   // 开始游戏
   function startGame() {
+    // 1. 让背景音乐响起来
+    const bgm = document.getElementById("bgm");
+    bgm.play();
+    
+    // 2. 把音乐开关状态改成“正在播放”
+    playing = true; 
+    document.getElementById("musicBtn").textContent = "🎵"; 
+
+    // 3. 原有的开始界面消失动画
     document.getElementById("startScreen").style.opacity = "0";
-    setTimeout(()=>{
-      document.getElementById("startScreen").style.display = "none";
-    },600);
-  }
+    setTimeout(() => {
+        document.getElementById("startScreen").style.display = "none";
+    }, 600);
+}
 
   // 音乐控制
   let playing = false;
