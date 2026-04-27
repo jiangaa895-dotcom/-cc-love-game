@@ -21,7 +21,7 @@
     position: relative;
   }
 
-  /* ========== 新增：开始界面 ========== */
+  /* 开始界面 */
   #startScreen {
     position: fixed;
     inset: 0;
@@ -136,12 +136,6 @@
 
   .cc-container:active {
     transform: scale(0.95);
-  }
-
-  .cc-body {
-    width: 180px;
-    height: 220px;
-    position: relative;
   }
 
   .cc-svg {
@@ -332,7 +326,6 @@
     100% { transform: translateY(0) rotate(0deg); }
   }
 
-  /* 移动端适配优化 */
   @media (max-width: 480px) {
     .title { font-size: 1.6rem; }
     .stat-box { padding: 10px 16px; }
@@ -343,7 +336,7 @@
 </head>
 <body>
 
-<!-- 新增：开始界面 -->
+<!-- 开始界面 -->
 <div id="startScreen">
   <div class="start-card">
     <h1>💕 戳一戳cc 💕</h1>
@@ -351,9 +344,9 @@
   </div>
 </div>
 
-<!-- 背景音乐控件+音频 -->
-<audio id="bgm" loop>
+<!-- 音乐按钮 & 背景音乐 -->
 <button id="musicBtn" onclick="toggleMusic()">🎵</button>
+<audio id="bgm" loop>
 
 <div class="stars" id="stars"></div>
 
@@ -378,18 +371,17 @@
       <circle cx="138" cy="165" r="12" fill="#ffddb8"/>
       <!-- 头 -->
       <ellipse cx="90" cy="80" rx="42" ry="45" fill="#ffddb8"/>
-      <!-- 帽子 id用于动画 -->
+      <!-- 帽子 -->
       <g id="hat">
         <rect x="58" y="38" width="64" height="10" rx="5" fill="#5a3d8a"/>
         <rect x="68" y="12" width="44" height="30" rx="8" fill="#7c5cba"/>
-        <!-- 帽子装饰 -->
         <rect x="68" y="36" width="44" height="4" rx="2" fill="#d46fa3"/>
       </g>
       <!-- 头发 -->
       <ellipse cx="90" cy="45" rx="36" ry="20" fill="#ffd966"/>
       <ellipse cx="70" cy="52" rx="12" ry="16" fill="#ffd966"/>
       <ellipse cx="110" cy="52" rx="12" ry="16" fill="#ffd966"/>
-      <!-- 眼睛 (闭眼, 弯弯的) -->
+      <!-- 眼睛 -->
       <path id="leftEye" d="M72 82 Q78 76 84 82" stroke="#5a3d8a" stroke-width="3" fill="none" stroke-linecap="round"/>
       <path id="rightEye" d="M96 82 Q102 76 108 82" stroke="#5a3d8a" stroke-width="3" fill="none" stroke-linecap="round"/>
       <!-- 腮红 -->
@@ -433,7 +425,7 @@
     },600);
   }
 
-  // 背景音乐控制
+  // 音乐控制
   let playing = false;
   function toggleMusic(){
     const bgm = document.getElementById("bgm");
@@ -447,7 +439,7 @@
     }
   }
 
-  // 生成背景星星
+  // 星星背景
   const starsEl = document.getElementById('stars');
   for (let i = 0; i < 30; i++) {
     const s = document.createElement('div');
@@ -460,7 +452,7 @@
   }
 
   let currentBubble = null;
-  // 读取本地储存进度
+  // 读取本地储存
   let pokeCount = Number(localStorage.getItem("pokeCount")) || 0;
 
   const responses = [
@@ -489,13 +481,12 @@
   const emojis = ['💕', '💗', '💖', '✨', '🌸', '💝', '⭐'];
   const states = ['😐','😊','🥰','😳','💓','❤️‍🔥'];
 
-  // 初始化加载储存数据
+  // 页面初始化
   window.onload = function(){
     document.getElementById('pokeCount').textContent = pokeCount;
     const initLove = Math.min(pokeCount * 5, 100);
     document.getElementById('loveBar').style.width = initLove + '%';
 
-    // 初始化状态&腮红
     const stateIdx = Math.min(Math.floor(pokeCount / 4), states.length - 1);
     document.getElementById('blushLevel').textContent = states[stateIdx];
     const blushOpacity = Math.min(0.3 + pokeCount * 0.05, 1);
@@ -507,14 +498,13 @@
     }
   }
 
+  // 戳戳事件
   function pokeCC(e) {
-    // 手机震动反馈
     if (navigator.vibrate) {
       navigator.vibrate(30);
     }
 
     pokeCount++;
-    // 保存进度到本地
     localStorage.setItem("pokeCount", pokeCount);
 
     const countEl = document.getElementById('pokeCount');
@@ -526,32 +516,25 @@
     const ccContainer = document.getElementById('ccContainer');
 
     countEl.textContent = pokeCount;
-
-    // 心动值上限100%
     const love = Math.min(pokeCount * 5, 100);
     loveBar.style.width = love + '%';
 
-    // 腮红逐渐变红
     const blushOpacity = Math.min(0.3 + pokeCount * 0.05, 1);
     blushLeft.setAttribute('opacity', blushOpacity);
     blushRight.setAttribute('opacity', blushOpacity);
 
-    // 害羞状态切换
     const stateIdx = Math.min(Math.floor(pokeCount / 4), states.length - 1);
     stateEl.textContent = states[stateIdx];
 
-    // 20次解锁秘密情话
     if (pokeCount >= 20) {
       secretMsg.classList.add('show');
     }
 
-    // 角色抖动动画
     const svg = document.getElementById('ccSvg');
     svg.classList.remove('cc-shake');
     void svg.offsetWidth;
     svg.classList.add('cc-shake');
 
-    // 随机帽子弹跳
     if (Math.random() > 0.6) {
       const hat = document.getElementById('hat');
       hat.classList.remove('hat-bounce');
@@ -559,7 +542,6 @@
       hat.classList.add('hat-bounce');
     }
 
-    // 清空旧对话泡
     if (currentBubble?.parentNode) currentBubble.remove();
     const bubble = document.createElement('div');
     bubble.className = 'speech-bubble';
@@ -568,7 +550,6 @@
     currentBubble = bubble;
     setTimeout(() => bubble.remove(), 2200);
 
-    // 多点漂浮爱心
     for (let i = 0; i < 3; i++) {
       setTimeout(() => {
         const heart = document.createElement('div');
@@ -581,7 +562,6 @@
       }, i * 100);
     }
 
-    // 点击涟漪特效
     const ripple = document.createElement('div');
     ripple.className = 'ripple';
     ripple.style.width = ripple.style.height = '40px';
