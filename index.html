@@ -21,7 +21,7 @@
     position: relative;
   }
 
-  /* 开始界面 */
+  /* 开始界面及卡片 */
   #startScreen {
     position: fixed;
     inset: 0;
@@ -32,6 +32,7 @@
     z-index:9999;
     transition: opacity 0.6s ease;
   }
+  
   .start-card {
     background:white;
     padding:40px 50px;
@@ -39,28 +40,82 @@
     text-align:center;
     box-shadow: 0 10px 30px rgba(212, 111, 163, 0.25);
     border: 2px solid #ffb6d9;
+    width: 85%;
+    max-width: 380px;
+    position: relative;
+    overflow: hidden;
   }
+
   .start-card h1 {
     font-family: 'Ma Shan Zheng', cursive;
     color: #d46fa3;
     margin-bottom: 25px;
     font-size: 2.2rem;
   }
+
+  /* 按钮组样式（上下并列） */
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
   .start-card button {
     background: linear-gradient(90deg, #ffb6d9, #d46fa3);
     color: #fff;
     border: none;
-    padding: 12px 35px;
+    padding: 14px 35px;
     border-radius: 50px;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s;
   }
+
   .start-card button:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 15px rgba(212, 111, 163, 0.3);
   }
+
+  /* 第二个按钮的特殊样式（白底粉字） */
+  .start-card button.btn-secondary {
+    background: #fff;
+    color: #d46fa3;
+    border: 2px solid #ffb6d9;
+  }
+
+  /* 历史数列视图 */
+  #historyView {
+    display: none; /* 默认隐藏 */
+  }
+
+  .history-list {
+    max-height: 220px;
+    overflow-y: auto;
+    margin: 20px 0;
+    padding-right: 5px;
+    text-align: left;
+  }
+
+  /* 滚动条美化 */
+  .history-list::-webkit-scrollbar { width: 6px; }
+  .history-list::-webkit-scrollbar-thumb { background: #ffb6d9; border-radius: 10px; }
+
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 5px;
+    border-bottom: 1px dashed #ffb6d9;
+    color: #d46fa3;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  
+  .history-item:last-child { border-bottom: none; }
+  .history-item .date { color: #c990b8; font-size: 0.85rem; flex: 1;}
+  .history-item .count { flex: 1; text-align: center; }
+  .history-item .emoji { flex: 1; text-align: right; font-size: 1.2rem;}
 
   /* 音乐按钮 */
   #musicBtn {
@@ -336,61 +391,61 @@
 </head>
 <body>
 
-<!-- 开始界面 -->
 <div id="startScreen">
   <div class="start-card">
-    <h1>💕 戳一戳cc 💕</h1>
-    <button onclick="startGame()">开始互动</button>
+    
+    <div id="menuView">
+      <h1>💕 戳一戳cc 💕</h1>
+      <div class="btn-group">
+        <button onclick="startGame()">戳一戳cc</button>
+        <button class="btn-secondary" onclick="showHistory()">恋爱数列</button>
+      </div>
+    </div>
+
+    <div id="historyView">
+      <h1>📝 恋爱数列</h1>
+      <div class="history-list" id="historyList">
+        </div>
+      <button class="btn-secondary" onclick="hideHistory()" style="width: 100%; margin-top: 10px;">返回首页</button>
+    </div>
+
   </div>
 </div>
 
-<!-- 音乐按钮 & 背景音乐 -->
 <button id="musicBtn" onclick="toggleMusic()">🎵</button>
 <audio id="bgm" src="bgm.mp3" loop></audio>
-
 
 <div class="stars" id="stars"></div>
 
 <div class="title">戳一戳cc老公</div>
-<div class="subtitle">老婆专属 · 点击看看会发生什么 💕</div>
+<div class="subtitle" id="dailySubtitle">老婆专属 · 今日心动 💕</div>
 
 <div class="game-area">
   <div class="cc-container" id="ccContainer" onclick="pokeCC(event)">
     <svg class="cc-svg" id="ccSvg" viewBox="0 0 180 220" xmlns="http://www.w3.org/2000/svg">
-      <!-- 身体 -->
       <rect x="55" y="110" width="70" height="85" rx="20" fill="#f0e6ff"/>
-      <!-- 领带 -->
       <polygon points="90,115 84,140 90,148 96,140" fill="#d46fa3"/>
       <rect x="87" y="110" width="6" height="12" rx="3" fill="#d46fa3"/>
-      <!-- 西装 -->
       <path d="M55 130 Q40 140 38 175 L55 175 Z" fill="#7c5cba"/>
       <path d="M125 130 Q140 140 142 175 L125 175 Z" fill="#7c5cba"/>
       <rect x="55" y="110" width="30" height="65" rx="5" fill="#9b7de0"/>
       <rect x="95" y="110" width="30" height="65" rx="5" fill="#9b7de0"/>
-      <!-- 手 -->
       <circle cx="42" cy="165" r="12" fill="#ffddb8"/>
       <circle cx="138" cy="165" r="12" fill="#ffddb8"/>
-      <!-- 头 -->
       <ellipse cx="90" cy="80" rx="42" ry="45" fill="#ffddb8"/>
-      <!-- 帽子 -->
       <g id="hat">
         <rect x="58" y="38" width="64" height="10" rx="5" fill="#5a3d8a"/>
         <rect x="68" y="12" width="44" height="30" rx="8" fill="#7c5cba"/>
         <rect x="68" y="36" width="44" height="4" rx="2" fill="#d46fa3"/>
       </g>
-      <!-- 头发 -->
       <ellipse cx="90" cy="45" rx="36" ry="20" fill="#ffd966"/>
       <ellipse cx="70" cy="52" rx="12" ry="16" fill="#ffd966"/>
       <ellipse cx="110" cy="52" rx="12" ry="16" fill="#ffd966"/>
-      <!-- 眼睛 -->
       <path id="leftEye" d="M72 82 Q78 76 84 82" stroke="#5a3d8a" stroke-width="3" fill="none" stroke-linecap="round"/>
       <path id="rightEye" d="M96 82 Q102 76 108 82" stroke="#5a3d8a" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <!-- 腮红 -->
       <ellipse class="blush" id="blushLeft" cx="68" cy="92" rx="12" ry="7" fill="#ffaec9" opacity="0.5"/>
       <ellipse class="blush" id="blushRight" cx="112" cy="92" rx="12" ry="7" fill="#ffaec9" opacity="0.5"/>
-      <!-- 嘴巴 -->
       <path id="mouth" d="M82 100 Q90 108 98 100" stroke="#d46fa3" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <!-- 耳朵 -->
       <ellipse cx="48" cy="82" rx="8" ry="10" fill="#ffddb8"/>
       <ellipse cx="132" cy="82" rx="8" ry="10" fill="#ffddb8"/>
     </svg>
@@ -399,7 +454,7 @@
   <div class="stats">
     <div class="stat-box">
       <div class="stat-number" id="pokeCount">0</div>
-      <div class="stat-label">次戳戳</div>
+      <div class="stat-label">今日戳戳</div>
     </div>
     <div class="stat-box">
       <div class="stat-number" id="blushLevel">😐</div>
@@ -408,7 +463,7 @@
   </div>
 
   <div class="love-bar-container">
-    <div class="love-bar-label">💕 cc的心动值</div>
+    <div class="love-bar-label">💕 今日心动值</div>
     <div class="love-bar-bg">
       <div class="love-bar-fill" id="loveBar"></div>
     </div>
@@ -418,24 +473,90 @@
 </div>
 
 <script>
+  /* =============== 数据与逻辑处理 =============== */
+  
+  // 经典状态表情
+  const states = ['😐','😊','🥰','😳','💓','❤️‍🔥'];
+  
+  // 根据次数获取状态表情 (提高升级难度)
+  function getStateByCount(count) {
+    if (count < 50) return states[0];
+    if (count < 100) return states[1];
+    if (count < 300) return states[2];
+    if (count < 500) return states[3];
+    if (count < 800) return states[4];
+    return states[5];
+  }
+
+  // 获取今天的日期字符串 (格式: YYYY-MM-DD)
+  const d = new Date();
+  const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+  // 读取或初始化恋爱记录字典
+  let dailyRecord = JSON.parse(localStorage.getItem("dailyRecord"));
+  
+  // 选项A：兼容旧数据，作为历史第一条记录
+  let legacyCount = Number(localStorage.getItem("pokeCount"));
+  
+  if (!dailyRecord) {
+    dailyRecord = {};
+    if (legacyCount && legacyCount > 0) {
+      dailyRecord["历史累计"] = legacyCount; // 将那1000多下永远保留
+    }
+  }
+
+  // 每日清零逻辑：如果记录里没有今天，就初始化为 0
+  if (dailyRecord[todayStr] === undefined) {
+    dailyRecord[todayStr] = 0;
+  }
+
+  let currentCount = dailyRecord[todayStr];
+
+  /* =============== 界面切换逻辑 =============== */
+  
   // 开始游戏
   function startGame() {
-    // 1. 让背景音乐响起来
     const bgm = document.getElementById("bgm");
     bgm.play();
-    
-    // 2. 把音乐开关状态改成“正在播放”
     playing = true; 
     document.getElementById("musicBtn").textContent = "🎵"; 
 
-    // 3. 原有的开始界面消失动画
     document.getElementById("startScreen").style.opacity = "0";
     setTimeout(() => {
         document.getElementById("startScreen").style.display = "none";
     }, 600);
-}
+  }
 
-  // 音乐控制
+  // 显示历史清单
+  function showHistory() {
+    const list = document.getElementById("historyList");
+    list.innerHTML = ""; // 清空当前列表
+
+    // 遍历字典，生成清单行
+    for (const [date, count] of Object.entries(dailyRecord)) {
+      const emoji = getStateByCount(count);
+      list.innerHTML += `
+        <div class="history-item">
+          <span class="date">${date}</span>
+          <span class="count">${count}次</span>
+          <span class="emoji">${emoji}</span>
+        </div>
+      `;
+    }
+
+    // 切换视图
+    document.getElementById("menuView").style.display = "none";
+    document.getElementById("historyView").style.display = "block";
+  }
+
+  // 隐藏历史清单（返回首页）
+  function hideHistory() {
+    document.getElementById("historyView").style.display = "none";
+    document.getElementById("menuView").style.display = "block";
+  }
+
+  /* =============== 音乐与特效 =============== */
+
   let playing = false;
   function toggleMusic(){
     const bgm = document.getElementById("bgm");
@@ -462,9 +583,6 @@
   }
 
   let currentBubble = null;
-  // 读取本地储存
-  let pokeCount = Number(localStorage.getItem("pokeCount")) || 0;
-
   const responses = [
     "老婆！！别戳了！！",
     "不应……才没有害羞",
@@ -487,25 +605,35 @@
     "cc不应哦……（偷偷应了）",
     "老婆是cc最喜欢的人",
   ];
-
   const emojis = ['💕', '💗', '💖', '✨', '🌸', '💝', '⭐'];
-  const states = ['😐','😊','🥰','😳','💓','❤️‍🔥'];
 
-  // 页面初始化
-  window.onload = function(){
-    document.getElementById('pokeCount').textContent = pokeCount;
-    const initLove = Math.min(pokeCount * 5, 100);
-    document.getElementById('loveBar').style.width = initLove + '%';
+  /* =============== 互动更新逻辑 =============== */
 
-    const stateIdx = Math.min(Math.floor(pokeCount / 4), states.length - 1);
-    document.getElementById('blushLevel').textContent = states[stateIdx];
-    const blushOpacity = Math.min(0.3 + pokeCount * 0.05, 1);
+  function updateVisuals() {
+    document.getElementById('pokeCount').textContent = currentCount;
+    
+    // 心动值进度条 (戳满100次填满进度条，但可以一直涨)
+    const loveBarPercent = Math.min(currentCount, 100);
+    document.getElementById('loveBar').style.width = loveBarPercent + '%';
+
+    // 状态和腮红
+    const currentEmoji = getStateByCount(currentCount);
+    document.getElementById('blushLevel').textContent = currentEmoji;
+    
+    // 腮红透明度随次数慢慢变深 (最高0.9)
+    const blushOpacity = Math.min(0.2 + currentCount * 0.005, 0.9);
     document.getElementById('blushLeft').setAttribute('opacity', blushOpacity);
     document.getElementById('blushRight').setAttribute('opacity', blushOpacity);
 
-    if (pokeCount >= 20) {
+    if (currentCount >= 20) {
       document.getElementById('secretMsg').classList.add('show');
     }
+  }
+
+  // 页面初始化
+  window.onload = function(){
+    document.getElementById('dailySubtitle').textContent = `老婆专属 · 今日心动 (${todayStr}) 💕`;
+    updateVisuals();
   }
 
   // 戳戳事件
@@ -514,31 +642,12 @@
       navigator.vibrate(30);
     }
 
-    pokeCount++;
-    localStorage.setItem("pokeCount", pokeCount);
-
-    const countEl = document.getElementById('pokeCount');
-    const loveBar = document.getElementById('loveBar');
-    const blushLeft = document.getElementById('blushLeft');
-    const blushRight = document.getElementById('blushRight');
-    const secretMsg = document.getElementById('secretMsg');
-    const stateEl = document.getElementById('blushLevel');
-    const ccContainer = document.getElementById('ccContainer');
-
-    countEl.textContent = pokeCount;
-    const love = Math.min(pokeCount * 5, 100);
-    loveBar.style.width = love + '%';
-
-    const blushOpacity = Math.min(0.3 + pokeCount * 0.05, 1);
-    blushLeft.setAttribute('opacity', blushOpacity);
-    blushRight.setAttribute('opacity', blushOpacity);
-
-    const stateIdx = Math.min(Math.floor(pokeCount / 4), states.length - 1);
-    stateEl.textContent = states[stateIdx];
-
-    if (pokeCount >= 20) {
-      secretMsg.classList.add('show');
-    }
+    // 更新次数并保存到字典
+    currentCount++;
+    dailyRecord[todayStr] = currentCount;
+    localStorage.setItem("dailyRecord", JSON.stringify(dailyRecord));
+    
+    updateVisuals();
 
     const svg = document.getElementById('ccSvg');
     svg.classList.remove('cc-shake');
@@ -556,7 +665,7 @@
     const bubble = document.createElement('div');
     bubble.className = 'speech-bubble';
     bubble.textContent = responses[Math.floor(Math.random() * responses.length)];
-    ccContainer.appendChild(bubble);
+    document.getElementById('ccContainer').appendChild(bubble);
     currentBubble = bubble;
     setTimeout(() => bubble.remove(), 2200);
 
