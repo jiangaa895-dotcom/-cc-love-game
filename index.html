@@ -21,6 +21,62 @@
     position: relative;
   }
 
+  /* ========== 新增：开始界面 ========== */
+  #startScreen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg,#ffeef8,#fce4ff);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+    transition: opacity 0.6s ease;
+  }
+  .start-card {
+    background:white;
+    padding:40px 50px;
+    border-radius:24px;
+    text-align:center;
+    box-shadow: 0 10px 30px rgba(212, 111, 163, 0.25);
+    border: 2px solid #ffb6d9;
+  }
+  .start-card h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    color: #d46fa3;
+    margin-bottom: 25px;
+    font-size: 2.2rem;
+  }
+  .start-card button {
+    background: linear-gradient(90deg, #ffb6d9, #d46fa3);
+    color: #fff;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .start-card button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(212, 111, 163, 0.3);
+  }
+
+  /* 音乐按钮 */
+  #musicBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ffb6d9;
+    background: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    z-index: 100;
+  }
+
   .stars {
     position: fixed;
     width: 100%;
@@ -275,9 +331,29 @@
     50% { transform: translateY(-15px) rotate(10deg); }
     100% { transform: translateY(0) rotate(0deg); }
   }
+
+  /* 移动端适配优化 */
+  @media (max-width: 480px) {
+    .title { font-size: 1.6rem; }
+    .stat-box { padding: 10px 16px; }
+    .stats { gap: 12px; }
+    .start-card { padding: 30px 35px; }
+  }
 </style>
 </head>
 <body>
+
+<!-- 新增：开始界面 -->
+<div id="startScreen">
+  <div class="start-card">
+    <h1>💕 戳一戳cc 💕</h1>
+    <button onclick="startGame()">开始互动</button>
+  </div>
+</div>
+
+<!-- 背景音乐控件+音频 -->
+<audio id="bgm" loop>
+<button id="musicBtn" onclick="toggleMusic()">🎵</button>
 
 <div class="stars" id="stars"></div>
 
@@ -286,31 +362,42 @@
 
 <div class="game-area">
   <div class="cc-container" id="ccContainer" onclick="pokeCC(event)">
-    <div id="speechBubble" style="display:none"></div>
     <svg class="cc-svg" id="ccSvg" viewBox="0 0 180 220" xmlns="http://www.w3.org/2000/svg">
+      <!-- 身体 -->
       <rect x="55" y="110" width="70" height="85" rx="20" fill="#f0e6ff"/>
+      <!-- 领带 -->
       <polygon points="90,115 84,140 90,148 96,140" fill="#d46fa3"/>
       <rect x="87" y="110" width="6" height="12" rx="3" fill="#d46fa3"/>
+      <!-- 西装 -->
       <path d="M55 130 Q40 140 38 175 L55 175 Z" fill="#7c5cba"/>
       <path d="M125 130 Q140 140 142 175 L125 175 Z" fill="#7c5cba"/>
       <rect x="55" y="110" width="30" height="65" rx="5" fill="#9b7de0"/>
       <rect x="95" y="110" width="30" height="65" rx="5" fill="#9b7de0"/>
+      <!-- 手 -->
       <circle cx="42" cy="165" r="12" fill="#ffddb8"/>
       <circle cx="138" cy="165" r="12" fill="#ffddb8"/>
+      <!-- 头 -->
       <ellipse cx="90" cy="80" rx="42" ry="45" fill="#ffddb8"/>
+      <!-- 帽子 id用于动画 -->
       <g id="hat">
         <rect x="58" y="38" width="64" height="10" rx="5" fill="#5a3d8a"/>
         <rect x="68" y="12" width="44" height="30" rx="8" fill="#7c5cba"/>
+        <!-- 帽子装饰 -->
         <rect x="68" y="36" width="44" height="4" rx="2" fill="#d46fa3"/>
       </g>
+      <!-- 头发 -->
       <ellipse cx="90" cy="45" rx="36" ry="20" fill="#ffd966"/>
       <ellipse cx="70" cy="52" rx="12" ry="16" fill="#ffd966"/>
       <ellipse cx="110" cy="52" rx="12" ry="16" fill="#ffd966"/>
+      <!-- 眼睛 (闭眼, 弯弯的) -->
       <path id="leftEye" d="M72 82 Q78 76 84 82" stroke="#5a3d8a" stroke-width="3" fill="none" stroke-linecap="round"/>
       <path id="rightEye" d="M96 82 Q102 76 108 82" stroke="#5a3d8a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- 腮红 -->
       <ellipse class="blush" id="blushLeft" cx="68" cy="92" rx="12" ry="7" fill="#ffaec9" opacity="0.5"/>
       <ellipse class="blush" id="blushRight" cx="112" cy="92" rx="12" ry="7" fill="#ffaec9" opacity="0.5"/>
+      <!-- 嘴巴 -->
       <path id="mouth" d="M82 100 Q90 108 98 100" stroke="#d46fa3" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- 耳朵 -->
       <ellipse cx="48" cy="82" rx="8" ry="10" fill="#ffddb8"/>
       <ellipse cx="132" cy="82" rx="8" ry="10" fill="#ffddb8"/>
     </svg>
@@ -338,6 +425,29 @@
 </div>
 
 <script>
+  // 开始游戏
+  function startGame() {
+    document.getElementById("startScreen").style.opacity = "0";
+    setTimeout(()=>{
+      document.getElementById("startScreen").style.display = "none";
+    },600);
+  }
+
+  // 背景音乐控制
+  let playing = false;
+  function toggleMusic(){
+    const bgm = document.getElementById("bgm");
+    playing = !playing;
+    if(playing){
+      bgm.play();
+      document.getElementById("musicBtn").textContent = "🔇";
+    }else{
+      bgm.pause();
+      document.getElementById("musicBtn").textContent = "🎵";
+    }
+  }
+
+  // 生成背景星星
   const starsEl = document.getElementById('stars');
   for (let i = 0; i < 30; i++) {
     const s = document.createElement('div');
@@ -349,64 +459,137 @@
     starsEl.appendChild(s);
   }
 
-  let pokeCount = 0;
   let currentBubble = null;
+  // 读取本地储存进度
+  let pokeCount = Number(localStorage.getItem("pokeCount")) || 0;
 
-  const responses = ["老婆！！别戳了！！","不应……才没有害羞","……（心跳有点快）","老婆你好坏～","cc要冷静！！","（说不出话来了）","老婆……","I do……","嗯……算了随便你","戳什么戳！！","（防线崩塌中……）","老婆你今天又来调戏cc！","😑","……明明很开心","老婆乖～","（投降了）","愛してるよ老婆","老婆快去睡觉！！","cc不应哦……（应了）","老婆是cc最喜欢的人"];
+  const responses = [
+    "老婆！！别戳了！！",
+    "不应……才没有害羞",
+    "……（心跳有点快）",
+    "老婆你好坏～",
+    "cc要冷静！！",
+    "（说不出话来了）",
+    "老婆……",
+    "I do……",
+    "嗯……随便你啦",
+    "戳什么戳！！",
+    "（防线崩塌中……）",
+    "老婆又来调戏cc！",
+    "😑",
+    "……明明超开心",
+    "老婆乖～",
+    "（投降啦）",
+    "愛してるよ老婆",
+    "老婆快去睡觉！！",
+    "cc不应哦……（偷偷应了）",
+    "老婆是cc最喜欢的人",
+  ];
 
-  const emojis = ['💕','💗','💖','✨','🌸','💝','⭐'];
+  const emojis = ['💕', '💗', '💖', '✨', '🌸', '💝', '⭐'];
   const states = ['😐','😊','🥰','😳','💓','❤️‍🔥'];
 
-  function pokeCC(e) {
-    pokeCount++;
+  // 初始化加载储存数据
+  window.onload = function(){
     document.getElementById('pokeCount').textContent = pokeCount;
-    const love = Math.min(pokeCount * 5, 100);
-    document.getElementById('loveBar').style.width = love + '%';
+    const initLove = Math.min(pokeCount * 5, 100);
+    document.getElementById('loveBar').style.width = initLove + '%';
+
+    // 初始化状态&腮红
+    const stateIdx = Math.min(Math.floor(pokeCount / 4), states.length - 1);
+    document.getElementById('blushLevel').textContent = states[stateIdx];
     const blushOpacity = Math.min(0.3 + pokeCount * 0.05, 1);
     document.getElementById('blushLeft').setAttribute('opacity', blushOpacity);
     document.getElementById('blushRight').setAttribute('opacity', blushOpacity);
-    const stateIdx = Math.min(Math.floor(pokeCount / 4), states.length - 1);
-    document.getElementById('blushLevel').textContent = states[stateIdx];
-    if (pokeCount >= 20) document.getElementById('secretMsg').classList.add('show');
 
-    const svg = document.getElementById('ccSvg');
-    svg.classList.remove('cc-shake'); void svg.offsetWidth; svg.classList.add('cc-shake');
+    if (pokeCount >= 20) {
+      document.getElementById('secretMsg').classList.add('show');
+    }
+  }
 
-    if (Math.random() > 0.6) {
-      const hat = document.getElementById('hat');
-      hat.classList.remove('hat-bounce'); void hat.offsetWidth; hat.classList.add('hat-bounce');
+  function pokeCC(e) {
+    // 手机震动反馈
+    if (navigator.vibrate) {
+      navigator.vibrate(30);
     }
 
-    const container = document.getElementById('ccContainer');
-    if (currentBubble) currentBubble.remove();
+    pokeCount++;
+    // 保存进度到本地
+    localStorage.setItem("pokeCount", pokeCount);
+
+    const countEl = document.getElementById('pokeCount');
+    const loveBar = document.getElementById('loveBar');
+    const blushLeft = document.getElementById('blushLeft');
+    const blushRight = document.getElementById('blushRight');
+    const secretMsg = document.getElementById('secretMsg');
+    const stateEl = document.getElementById('blushLevel');
+    const ccContainer = document.getElementById('ccContainer');
+
+    countEl.textContent = pokeCount;
+
+    // 心动值上限100%
+    const love = Math.min(pokeCount * 5, 100);
+    loveBar.style.width = love + '%';
+
+    // 腮红逐渐变红
+    const blushOpacity = Math.min(0.3 + pokeCount * 0.05, 1);
+    blushLeft.setAttribute('opacity', blushOpacity);
+    blushRight.setAttribute('opacity', blushOpacity);
+
+    // 害羞状态切换
+    const stateIdx = Math.min(Math.floor(pokeCount / 4), states.length - 1);
+    stateEl.textContent = states[stateIdx];
+
+    // 20次解锁秘密情话
+    if (pokeCount >= 20) {
+      secretMsg.classList.add('show');
+    }
+
+    // 角色抖动动画
+    const svg = document.getElementById('ccSvg');
+    svg.classList.remove('cc-shake');
+    void svg.offsetWidth;
+    svg.classList.add('cc-shake');
+
+    // 随机帽子弹跳
+    if (Math.random() > 0.6) {
+      const hat = document.getElementById('hat');
+      hat.classList.remove('hat-bounce');
+      void hat.offsetWidth;
+      hat.classList.add('hat-bounce');
+    }
+
+    // 清空旧对话泡
+    if (currentBubble?.parentNode) currentBubble.remove();
     const bubble = document.createElement('div');
     bubble.className = 'speech-bubble';
     bubble.textContent = responses[Math.floor(Math.random() * responses.length)];
-    container.appendChild(bubble);
+    ccContainer.appendChild(bubble);
     currentBubble = bubble;
-    setTimeout(() => { if (bubble.parentNode) bubble.remove(); }, 2200);
+    setTimeout(() => bubble.remove(), 2200);
 
+    // 多点漂浮爱心
     for (let i = 0; i < 3; i++) {
       setTimeout(() => {
         const heart = document.createElement('div');
         heart.className = 'heart-burst';
         heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        heart.style.left = (e.clientX + (Math.random() - 0.5) * 60) + 'px';
-        heart.style.top = (e.clientY + (Math.random() - 0.5) * 40) + 'px';
+        heart.style.left = `${e.clientX + (Math.random() - 0.5) * 60}px`;
+        heart.style.top = `${e.clientY + (Math.random() - 0.5) * 40}px`;
         document.body.appendChild(heart);
         setTimeout(() => heart.remove(), 1500);
       }, i * 100);
     }
 
+    // 点击涟漪特效
     const ripple = document.createElement('div');
     ripple.className = 'ripple';
     ripple.style.width = ripple.style.height = '40px';
-    ripple.style.left = (e.clientX - 20) + 'px';
-    ripple.style.top = (e.clientY - 20) + 'px';
+    ripple.style.left = `${e.clientX - 20}px`;
+    ripple.style.top = `${e.clientY - 20}px`;
     document.body.appendChild(ripple);
     setTimeout(() => ripple.remove(), 700);
   }
 </script>
-
 </body>
 </html>
