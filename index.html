@@ -187,10 +187,68 @@
   body.night-mode .prop-btn { border-color: #8cb3dd; background: rgba(255,255,255,0.9); }
   /* ============================================== */
 
+  .home-page {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg,#ffeef8,#fce4ff);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+}
+
+.home-title {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 2rem;
+  color: #d46fa3;
+  margin-bottom: 30px;
+}
+
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  gap: 25px;
+}
+
+.icon {
+  background: white;
+  border-radius: 20px;
+  padding: 15px;
+  text-align: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  border: 2px solid #ffb6d9;
+  box-shadow: 0 4px 12px rgba(212,111,163,0.2);
+  transition: 0.3s;
+}
+
+.icon span {
+  display: block;
+  font-size: 0.7rem;
+  margin-top: 5px;
+  color: #d46fa3;
+}
+
+.icon:hover {
+  transform: translateY(-5px) scale(1.05);
+}
 </style>
 </head>
 <body>
+<!-- 💕 首页 -->
+<div id="homePage" class="home-page">
+  <h1 class="home-title">🏠 我们的小窝</h1>
 
+  <div class="icon-grid">
+    <div class="icon" onclick="openModule('diary')">📙<span>日记本</span></div>
+    <div class="icon" onclick="openModule('calendar')">📅<span>日历表</span></div>
+    <div class="icon" onclick="openModule('album')">📷<span>相册</span></div>
+    <div class="icon" onclick="openModule('memory')">💗<span>记忆档案柜</span></div>
+    <div class="icon" onclick="openModule('mail')">🌲<span>树洞信箱</span></div>
+    <div class="icon" onclick="startGame()">👉🏻<span>戳一戳cc</span></div>
+  </div>
+</div>
 <div id="startScreen">
   <div class="start-card">
     <div id="menuView">
@@ -401,6 +459,21 @@
 
   /* =============== 界面切换逻辑 =============== */
   function startGame() {
+  document.getElementById("homePage").style.display = "none"; // 👈隐藏首页
+
+  const bgm = document.getElementById("bgm");
+  bgm.play().catch(()=>{});
+
+  playing = true;
+  document.getElementById("musicBtn").textContent = "🎵";
+
+  document.getElementById("startScreen").style.opacity = "0";
+  setTimeout(() => {
+    document.getElementById("startScreen").style.display = "none";
+  }, 600);
+
+  checkTimeAndOutfit();
+}
     const bgm = document.getElementById("bgm");
     bgm.play().catch(()=>{}); // 防止浏览器自动播放限制报错
     playing = true; 
@@ -429,6 +502,8 @@
   }
 
   function returnToHome() {
+  document.getElementById("homePage").style.display = "flex"; // 👈显示首页
+}
     const startScreen = document.getElementById("startScreen");
     document.getElementById("historyView").style.display = "none";
     document.getElementById("menuView").style.display = "block";
