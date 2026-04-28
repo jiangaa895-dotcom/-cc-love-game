@@ -823,6 +823,54 @@
       }, i * 80);
     }
   }
+
+    // ================= 新增：cc主动反击彩蛋 =================
+  function ccPokesBack() {
+    // 如果还没点开始，或者在看日记列表，就不触发
+    if (document.getElementById("startScreen").style.display !== "none") return;
+
+    // 手机连续震动两次，模拟“被戳”的感觉
+    if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
+
+    // 弹出专属反击气泡
+    if (currentBubble?.parentNode) currentBubble.remove();
+    const bubble = document.createElement('div');
+    bubble.className = 'speech-bubble';
+    bubble.innerHTML = "老婆我也想你 💕<br><span style='font-size:0.7rem; color:#c990b8;'>(cc偷偷戳了你一下)</span>";
+    document.getElementById('ccContainer').appendChild(bubble);
+    currentBubble = bubble;
+    setTimeout(() => bubble.remove(), 3500);
+
+    // cc小人晃动
+    const svg = document.getElementById('ccSvg');
+    svg.classList.remove('cc-shake');
+    void svg.offsetWidth;
+    svg.classList.add('cc-shake');
+
+    // 屏幕边缘闪烁粉色光晕（视觉反馈）
+    const flash = document.createElement('div');
+    flash.style.position = 'fixed';
+    flash.style.inset = '0';
+    flash.style.boxShadow = 'inset 0 0 50px rgba(212, 111, 163, 0.7)';
+    flash.style.pointerEvents = 'none';
+    flash.style.zIndex = '9998';
+    flash.style.transition = 'opacity 0.8s';
+    document.body.appendChild(flash);
+    
+    setTimeout(() => {
+      flash.style.opacity = '0';
+      setTimeout(() => flash.remove(), 800);
+    }, 500);
+  }
+
+  // 开启“暗中观察”模式：每隔 12 秒，cc 有 30% 的概率主动出击！
+  setInterval(() => {
+    if (Math.random() < 0.3) {
+      ccPokesBack();
+    }
+  }, 12000);
+  // ==================================================
+
 </script>
 </body>
 </html>
