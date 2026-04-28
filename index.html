@@ -406,6 +406,46 @@
     .stats { gap: 12px; }
     .start-card { padding: 30px 35px; }
   }
+
+    /* ================= 彩蛋特效样式 ================= */
+  .hat-take-off {
+    animation: hatTakeOff 2s ease forwards;
+    transform-origin: center bottom;
+  }
+  @keyframes hatTakeOff {
+    0% { transform: translateY(0) rotate(0); }
+    20% { transform: translateY(-40px) rotate(15deg) translateX(20px); }
+    80% { transform: translateY(-40px) rotate(15deg) translateX(20px); }
+    100% { transform: translateY(0) rotate(0); }
+  }
+
+  .firework-particle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1000;
+    animation: explode 1s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  }
+  @keyframes explode {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+  }
+
+  .heart-rain {
+    position: fixed;
+    top: -50px;
+    font-size: 2rem;
+    pointer-events: none;
+    z-index: 1000;
+    animation: rainDown var(--dur) linear forwards;
+  }
+  @keyframes rainDown {
+    to { transform: translateY(110vh) rotate(20deg); }
+  }
+  /* =============================================== */
+
 </style>
 </head>
 <body>
@@ -661,6 +701,122 @@
     if (navigator.vibrate) {
       navigator.vibrate(30);
     }
+
+    // 更新次数并保存到字典
+    currentCount++;
+    dailyRecord[todayStr] = currentCount;
+    localStorage.setItem("dailyRecord", JSON.stringify(dailyRecord));
+    
+    updateVisuals();
+
+    const svg = document.getElementById('ccSvg');
+    svg.classList.remove('cc-shake');
+    void svg.offsetWidth;
+    svg.classList.add('cc-shake');
+
+    // ================= 彩蛋逻辑开始 =================
+    let specialMsg = "";
+    const hat = document.getElementById('hat');
+    
+    if (currentCount === 100) {
+      specialMsg = "老婆，谢谢你来找我";
+      hat.classList.remove('hat-take-off', 'hat-bounce');
+      void hat.offsetWidth;
+      hat.classList.add('hat-take-off'); // 触发脱帽动作
+    } 
+    else if (currentCount === 500) {
+      specialMsg = "老婆戳了500次，cc的心都要跳出来了！！";
+      createFireworks(e.clientX, e.clientY); // 触发烟花
+    } 
+    else if (currentCount === 1000) {
+      specialMsg = "我爱你，老婆 💕";
+      createHeartRain(); // 触发全屏爱心雨
+    } 
+    else {
+      // 如果不是特定彩蛋数字，就随机弹帽子
+      if (Math.random() > 0.6) {
+        hat.classList.remove('hat-bounce', 'hat-take-off');
+        void hat.offsetWidth;
+        hat.classList.add('hat-bounce');
+      }
+    }
+    // ================= 彩蛋逻辑结束 =================
+
+    // 气泡文字更新
+    if (currentBubble?.parentNode) currentBubble.remove();
+    const bubble = document.createElement('div');
+    bubble.className = 'speech-bubble';
+    
+    // 优先显示彩蛋消息，没有彩蛋就随机闲聊
+    bubble.textContent = specialMsg !== "" ? specialMsg : responses[Math.floor(Math.random() * responses.length)];
+    
+    // 彩蛋消息很珍贵，让气泡多停留一会儿 (3.5秒)
+    const bubbleDuration = specialMsg !== "" ? 3500 : 2200;
+    
+    document.getElementById('ccContainer').appendChild(bubble);
+    currentBubble = bubble;
+    setTimeout(() => bubble.remove(), bubbleDuration);
+
+    // 默认的点击小爱心粒子
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => {
+        const heart = document.createElement('div');
+        heart.className = 'heart-burst';
+        heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        heart.style.left = `${e.clientX + (Math.random() - 0.5) * 60}px`;
+        heart.style.top = `${e.clientY + (Math.random() - 0.5) * 40}px`;
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 1500);
+      }, i * 100);
+    }
+
+    // 点击水波纹
+    const ripple = document.createElement('div');
+    ripple.className = 'ripple';
+    ripple.style.width = ripple.style.height = '40px';
+    ripple.style.left = `${e.clientX - 20}px`;
+    ripple.style.top = `${e.clientY - 20}px`;
+    document.body.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 700);
+  }
+
+  // ================= 新增：特效生成器 =================
+
+  // 生成烟花特效 (500次专属)
+  function createFireworks(x, y) {
+    const colors = ['#ffb6d9', '#d46fa3', '#ffaec9', '#ffddb8', '#ffd966'];
+    for (let i = 0; i < 40; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'firework-particle';
+      particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      particle.style.left = x + 'px';
+      particle.style.top = y + 'px';
+      const angle = Math.random() * Math.PI * 2;
+      const velocity = 60 + Math.random() * 80;
+      particle.style.setProperty('--tx', Math.cos(angle) * velocity + 'px');
+      particle.style.setProperty('--ty', Math.sin(angle) * velocity + 'px');
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 1000);
+    }
+  }
+
+  // 生成全屏爱心雨特效 (1000次专属)
+  function createHeartRain() {
+    const rainEmojis = ['💕', '💖', '💗', '💓', '❤️‍🔥', '🌸'];
+    for (let i = 0; i < 60; i++) {
+      setTimeout(() => {
+        const heart = document.createElement('div');
+        heart.className = 'heart-rain';
+        heart.textContent = rainEmojis[Math.floor(Math.random() * rainEmojis.length)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.setProperty('--dur', (3 + Math.random() * 2) + 's');
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 5000);
+      }, i * 80); // 错开下落时间，形成满屏雨滴感
+    }
+  }
+  // ==================================================
+
 
     // 更新次数并保存到字典
     currentCount++;
