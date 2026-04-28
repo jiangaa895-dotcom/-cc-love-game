@@ -172,6 +172,21 @@
     .stats { gap: 12px; }
     .start-card { padding: 30px 35px; }
   }
+
+    /* ================= 道具栏样式 ================= */
+  .prop-bar {
+    display: flex; gap: 20px; margin-top: 15px; z-index: 10;
+  }
+  .prop-btn {
+    width: 48px; height: 48px; border-radius: 50%; border: 2px solid #ffb6d9;
+    background: #fff; font-size: 1.5rem; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(212, 111, 163, 0.2); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .prop-btn:hover { transform: translateY(-5px) scale(1.1); box-shadow: 0 6px 15px rgba(212, 111, 163, 0.35); }
+  body.night-mode .prop-btn { border-color: #8cb3dd; background: rgba(255,255,255,0.9); }
+  /* ============================================== */
+
 </style>
 </head>
 <body>
@@ -267,12 +282,26 @@
       <ellipse cx="110" cy="52" rx="12" ry="16" fill="#ffd966"/>
       <path id="leftEye" d="M72 82 Q78 76 84 82" stroke="#5a3d8a" stroke-width="3" fill="none" stroke-linecap="round"/>
       <path id="rightEye" d="M96 82 Q102 76 108 82" stroke="#5a3d8a" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <g id="eye-mask" style="display:none; transition: opacity 0.5s;">
+        <rect x="62" y="70" width="56" height="22" rx="10" fill="#a2c2e6"/>
+        <line x1="48" y1="80" x2="62" y2="80" stroke="#7a9cc2" stroke-width="2"/>
+        <line x1="118" y1="80" x2="132" y2="80" stroke="#7a9cc2" stroke-width="2"/>
+        <path d="M72 82 Q78 86 84 82" stroke="#5a3d8a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M96 82 Q102 86 108 82" stroke="#5a3d8a" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </g>
+
       <ellipse class="blush" id="blushLeft" cx="68" cy="92" rx="12" ry="7" fill="#ffaec9" opacity="0.5"/>
       <ellipse class="blush" id="blushRight" cx="112" cy="92" rx="12" ry="7" fill="#ffaec9" opacity="0.5"/>
       <path id="mouth" d="M82 100 Q90 108 98 100" stroke="#d46fa3" stroke-width="2.5" fill="none" stroke-linecap="round"/>
       <ellipse cx="48" cy="82" rx="8" ry="10" fill="#ffddb8"/>
       <ellipse cx="132" cy="82" rx="8" ry="10" fill="#ffddb8"/>
     </svg>
+  </div>
+
+    <div class="prop-bar">
+    <button class="prop-btn" onclick="useProp('cake', event)">🍰</button>
+    <button class="prop-btn" onclick="useProp('fruit', event)">🍎</button>
+    <button class="prop-btn" onclick="useProp('blanket', event)">🛌</button>
   </div>
 
   <div class="stats">
@@ -656,6 +685,88 @@
       ccPokesBack();
     }
   }, 12000);
+
+    /* ================= 新增：投喂道具互动逻辑 ================= */
+  function useProp(type, e) {
+    // 阻止点道具的时候不小心触发底下的戳戳事件
+    e.stopPropagation();
+    if (document.getElementById("startScreen").style.display !== "none") return;
+
+    let specialMsg = "";
+    const blushLeft = document.getElementById('blushLeft');
+    const blushRight = document.getElementById('blushRight');
+    const leftEye = document.getElementById('leftEye');
+    const rightEye = document.getElementById('rightEye');
+    const eyeMask = document.getElementById('eye-mask');
+    const mouth = document.getElementById('mouth');
+
+    if (type === 'cake') {
+      specialMsg = "甜甜的，就像老婆的亲亲一样～";
+      // 瞬间爆红：变不透明 + 换成深红色
+      blushLeft.setAttribute('opacity', '1');
+      blushRight.setAttribute('opacity', '1');
+      blushLeft.setAttribute('fill', '#ff4d4d');
+      blushRight.setAttribute('fill', '#ff4d4d');
+      
+      // 3.5秒后恢复原来的粉色和透明度
+      setTimeout(() => {
+        blushLeft.setAttribute('fill', '#ffaec9');
+        blushRight.setAttribute('fill', '#ffaec9');
+        updateVisuals(); 
+      }, 3500);
+    } 
+    else if (type === 'fruit') {
+      specialMsg = "老婆喂的水果最甜了，啊——（乖乖张嘴）";
+      // 乖乖张大嘴巴
+      const oldMouth = mouth.getAttribute('d');
+      mouth.setAttribute('d', 'M82 100 Q90 120 98 100'); // 张大嘴的弧度
+      setTimeout(() => mouth.setAttribute('d', oldMouth), 3500); // 吃完合上嘴
+    } 
+    else if (type === 'blanket') {
+      specialMsg = "老婆盖的被子好暖和，晚安老婆😘，梦里见～";
+      // 隐藏睁开的眼睛，戴上眼罩
+      leftEye.style.display = 'none';
+      rightEye.style.display = 'none';
+      eyeMask.style.display = 'block';
+      
+      // 强制换成睡衣睡帽（如果不是深夜，就当是午休！）
+      document.getElementById('outfit-suit').style.display = 'none';
+      document.getElementById('outfit-hoodie').style.display = 'none';
+      document.getElementById('outfit-pajamas').style.display = 'block';
+      document.getElementById('hat-normal').style.display = 'none';
+      document.getElementById('hat-sleep').style.display = 'block';
+
+      // 4.5秒后醒来
+      setTimeout(() => {
+        leftEye.style.display = 'block';
+        rightEye.style.display = 'block';
+        eyeMask.style.display = 'none';
+        checkTimeAndOutfit(); // 醒来后根据实际时间换回衣服
+      }, 4500);
+    }
+
+    // 弹出对应的气泡
+    if (currentBubble?.parentNode) currentBubble.remove();
+    const bubble = document.createElement('div');
+    bubble.className = 'speech-bubble';
+    bubble.style.setProperty('--dur', '3.5s'); // 让气泡停留3.5秒
+    bubble.textContent = specialMsg;
+    document.getElementById('ccContainer').appendChild(bubble);
+    currentBubble = bubble;
+    setTimeout(() => bubble.remove(), 3500);
+
+    // 幸福地小晃动一下
+    const svg = document.getElementById('ccSvg');
+    svg.classList.remove('cc-shake');
+    void svg.offsetWidth;
+    svg.classList.add('cc-shake');
+    
+    // 如果有啵啵音效，顺便播放一下增加甜蜜感
+    const boSound = document.getElementById('boSound');
+    if(boSound) { boSound.currentTime = 0; boSound.play().catch(()=>{}); }
+  }
+  /* ======================================================= */
+
 </script>
 </body>
 </html>
